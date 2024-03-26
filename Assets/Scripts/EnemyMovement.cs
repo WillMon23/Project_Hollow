@@ -8,12 +8,13 @@ public class EnemyMovement : MonoBehaviour
     public GameObject target;
     public float speed;
     public float atkRange;
-    private Rigidbody rigidbody;
+    public GameObject hitBox;
+    private Rigidbody rigbody;
 
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rigbody = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
@@ -46,34 +47,30 @@ public class EnemyMovement : MonoBehaviour
         displacement = displacement.normalized;
 
         //Moves enemy to target
-        rigidbody.MovePosition(currentPos += displacement * speed * Time.fixedDeltaTime * atkRange);
+        rigbody.MovePosition(currentPos += displacement * speed * Time.fixedDeltaTime * atkRange);
     }
 
     private void TryAttack()
     {
-        //create a newobject to be the hitbox
-        GameObject HitBox = new GameObject("HitBox");
+        //Move The hitbox to target
+        Rigidbody hitBoxRigidbody = hitBox.GetComponent<Rigidbody>();
+        hitBox.SetActive(true);
+        Vector3 orginalPos = hitBoxRigidbody.position;
 
-        // Add components to the new GameObject
-        HitBox.AddComponent<MeshRenderer>();
-        HitBox.AddComponent<MeshFilter>();
-        HitBox.AddComponent<BoxCollider>();
+        //Current position of traget
+        Vector3 tragetPosition = target.transform.position;
+        //Distance to the traget
+        Vector3 displacement = tragetPosition - hitBoxRigidbody.position;
+        //Normalized the distance
+        displacement = displacement.normalized;
 
-        // Set the position of the new GameObject
-        HitBox.transform.position = transform.position + new Vector3(-atkRange, 0f, 0f);
+        hitBoxRigidbody.MovePosition(hitBoxRigidbody.position + displacement * 1.0f * Time.fixedDeltaTime);
 
-        //Checks teh position of the hitbox and the target
-        if (HitBox.transform.position == target.transform.position)
+        //Checks for collision hit
+        if(hitBox.GetComponentInParent<HitBoxCollision>().isActive == true)
         {
-            // Bounce the target up
-            Rigidbody targetRigidbody = target.GetComponent<Rigidbody>();
-            if (targetRigidbody != null)
-            {
-                targetRigidbody.AddForce(Vector3.up * 10f, ForceMode.Impulse);
-            }
+            hitBox.SetActive(false);
+            hitBox.transform.position = orginalPos;
         }
-
-        Destroy(HitBox);
     }
-   
 }
