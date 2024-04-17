@@ -5,33 +5,72 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public Object target;
+    public GameObject target;
     public float speed;
-
-    private Rigidbody rigidbody;
+    public float atkRange;
+    public GameObject hitBox;
+    private Rigidbody rigbody;
 
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rigbody = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        //Current position of traget
-        Vector3 tragetPosition = target.GetComponent<Rigidbody>().position;
-        //Distance to the traget
-        Vector3 displacement = tragetPosition - transform.position;
-        //Normalized the distance
-        displacement = displacement.normalized;
-        
-        //Moves enemy to target
-        rigidbody.MovePosition(transform.position + displacement * speed * Time.fixedDeltaTime);
+        float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+        if (distanceToTarget > atkRange)
+        {
+            TryMove(transform.position);
+        }
+        else
+        {
+            TryAttack();
+        }
+
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private void TryMove(Vector3 currentPos)
+    {
+        //Current position of traget
+        Vector3 tragetPosition = target.transform.position;
+        //Distance to the traget
+        Vector3 displacement = tragetPosition - currentPos;
+        //Normalized the distance
+        displacement = displacement.normalized;
+
+        //Moves enemy to target
+        rigbody.MovePosition(currentPos += displacement * speed * Time.fixedDeltaTime * atkRange);
+    }
+
+    private void TryAttack()
+    {
+        //Move The hitbox to target
+        Rigidbody hitBoxRigidbody = hitBox.GetComponent<Rigidbody>();
+        hitBox.SetActive(true);
+        Vector3 orginalPos = hitBoxRigidbody.position;
+
+        //Current position of traget
+        Vector3 tragetPosition = target.transform.position;
+        //Distance to the traget
+        Vector3 displacement = tragetPosition - hitBoxRigidbody.position;
+        //Normalized the distance
+        displacement = displacement.normalized;
+
+        hitBoxRigidbody.MovePosition(hitBoxRigidbody.position + displacement * 1.0f * Time.fixedDeltaTime);
+
+        //Checks for collision hit
+        if(hitBox.GetComponentInParent<HitBoxCollision>().isActive == true)
+        {
+            hitBox.SetActive(false);
+            hitBox.transform.position = orginalPos;
+        }
     }
 }
