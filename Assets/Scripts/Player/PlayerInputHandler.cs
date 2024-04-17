@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputComponenet : MonoBehaviour
+public class PlayerInputHandler : MonoBehaviour
 {
     [Header("Input Action Asset")]
     [SerializeField] private InputActionAsset _playerControls;
@@ -31,7 +31,7 @@ public class PlayerInputComponenet : MonoBehaviour
     public bool Action4 { get; private set; }   
     
     //Singleton, May only have one instance 
-    public static PlayerInputComponenet Instance { get; private set; }
+    public static PlayerInputHandler Instance { get; private set; }
 
     private void Awake()
     {
